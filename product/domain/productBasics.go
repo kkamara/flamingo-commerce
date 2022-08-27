@@ -90,7 +90,7 @@ type (
 		AvailablePrices []PriceInfo
 		// LoyaltyPrices holds optional infos for products that can be paid in a loyalty program
 		LoyaltyPrices []LoyaltyPriceInfo
-		// LoyaltyEarnings jolds optional infos about potential loyalty earnings
+		// LoyaltyEarnings holds optional infos about potential loyalty earnings
 		LoyaltyEarnings []LoyaltyEarningInfo
 	}
 
@@ -130,6 +130,7 @@ type (
 
 	// PriceContext defines the scope in which the price was calculated
 	PriceContext struct {
+		DeliveryCode  string
 		CustomerGroup string
 		ChannelCode   string
 		Locale        string
@@ -183,9 +184,9 @@ type (
 	Attribute struct {
 		// Code is the internal attribute identifier
 		Code string
-		// CodeLabel is the human readable (perhaps localized) attribute name
+		// CodeLabel is the human-readable (perhaps localized) attribute name
 		CodeLabel string
-		// Label is the human readable (perhaps localized) attribute value
+		// Label is the human-readable (perhaps localized) attribute value
 		Label string
 		// RawValue is the untouched original value of the attribute
 		RawValue interface{}
@@ -272,20 +273,48 @@ func (at Attribute) IsDisabledValue() bool {
 
 // HasMultipleValues checks for multiple raw values
 func (at Attribute) HasMultipleValues() bool {
-	_, ok := at.RawValue.([]interface{})
+	_, ok := at.RawValue.([]Attribute)
+	if ok {
+		return true
+	}
+
+	_, ok = at.RawValue.([]interface{})
 	return ok
 }
 
 // Values builds a list of product attribute values in case the raw value is a slice
 func (at Attribute) Values() []string {
 	var result []string
-	list, ok := at.RawValue.([]interface{})
+
+	list, ok := at.RawValue.([]Attribute)
 	if ok {
 		for _, entry := range list {
+			result = append(result, entry.Value())
+		}
+		return result
+	}
+
+	listFallback, ok := at.RawValue.([]interface{})
+	if ok {
+		for _, entry := range listFallback {
 			result = append(result, strings.Trim(fmt.Sprintf("%v", entry), " "))
 		}
 	}
 	return result
+}
+
+// Labels builds a list of human-readable product attribute values in case the raw value is a slice of Attribute, uses Values() as fallback
+func (at Attribute) Labels() []string {
+	var result []string
+	list, ok := at.RawValue.([]Attribute)
+	if ok {
+		for _, entry := range list {
+			result = append(result, entry.Label)
+		}
+		return result
+	}
+
+	return at.Values()
 }
 
 // HasUnitCode checks if a unit code is set on the attribute
@@ -363,7 +392,7 @@ func (bpd BasicProductData) GetMedia(usage string) Media {
 
 // IsSaleableNow checks flag and time
 func (p Saleable) IsSaleableNow() bool {
-	if p.IsSaleable == false {
+	if !p.IsSaleable {
 		return false
 	}
 
@@ -666,7 +695,7 @@ func (c *CategoryTeaser) CPath() string {
 
 // First of the badges, returns nil if there is no first badge
 func (b Badges) First() *Badge {
-	if 0 == len(b) {
+	if len(b) == 0 {
 		return nil
 	}
 

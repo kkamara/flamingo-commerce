@@ -1,5 +1,80 @@
 # Changelog
-## v3.5.0 [upcoming]
+## v3.6.0 [upcoming]
+
+**cart**
+* **Breaking**: Move all calculations to cart behaviour implementation
+  * By moving calculation responsibility, we enable different implementation possibilities for calculations like tax before or after discounts, tax on single item or sum and different tax rounding modes instead of having it hard-coded in the flamingo cart.
+  * All calculation functions on cart item, shipping item, delivery and cart are now public fields for which the values must be set by the cart behaviour implementation
+  * The `DefaultCartBehaviour` calculates all new fields accordingly
+  * Removed `ItemBuilder`, `DeliveryBuilder` and `Builder` since they didn't provide any meaningful functionality after removing the calculations. Please create structs directly.
+  * Changed the GraphQL cart model accordingly.
+  * To help with the migration there are sed commands for the following fields in `cart/migration.sed`: run `find . -type f -iname '*.go' -exec gsed -i -f migration.sed "{}" +;`
+  * Cart items
+      * | Old Function                           | New Field                            |
+        |----------------------------------------|--------------------------------------|
+        | RowPriceGrossWithDiscount()            | RowPriceGrossWithDiscount            |
+        | RowPriceGrossWithItemRelatedDiscount() | RowPriceGrossWithItemRelatedDiscount |
+        | RowPriceNetWithDiscount()              | RowPriceNetWithDiscount              |
+        | RowPriceNetWithItemRelatedDiscount()   | RowPriceNetWithItemRelatedDiscount   |
+        | TotalDiscountAmount()                  | TotalDiscountAmount                  |
+        | ItemRelatedDiscountAmount()            | ItemRelatedDiscountAmount            |
+        | NonItemRelatedDiscountAmount()         | NonItemRelatedDiscountAmount         |
+  * Shipping items
+      * | Old Function               | New Field               |
+        |----------------------------|-------------------------|
+        | TotalWithDiscountInclTax() | PriceGrossWithDiscounts |
+        | -                          | PriceNetWithDiscounts   |
+  * Deliveries
+      * | Old Function                      | New Field                       |
+        |-----------------------------------|---------------------------------|
+        | SubTotalGross()                   | SubTotalGross                   |
+        | SubTotalNet()                     | SubTotalNet                     |
+        | SumTotalDiscountAmount()          | TotalDiscountAmount             |
+        | SumSubTotalDiscountAmount()       | SubTotalDiscountAmount          |
+        | SumNonItemRelatedDiscountAmount() | NonItemRelatedDiscountAmount    |
+        | SumItemRelatedDiscountAmount()    | ItemRelatedDiscountAmount       |
+        | SubTotalGrossWithDiscounts()      | SubTotalGrossWithDiscounts      |
+        | SubTotalNetWithDiscounts()        | SubTotalNetWithDiscounts        |
+        | GrandTotal()                      | GrandTotal                      |
+  * Cart
+      * | Old Function                      | New Field                       |
+        |-----------------------------------|---------------------------------|
+        | GrandTotal()                      | GrandTotal                      |
+        | -                                 | GrandTotalNet                   |
+        | SumShippingNet()                  | ShippingNet                     |
+        | SumShippingNetWithDiscounts()     | ShippingNetWithDiscounts        |
+        | SumShippingGross()                | ShippingGross                   |
+        | SumShippingGrossWithDiscounts()   | ShippingGrossWithDiscounts      |
+        | SubTotalGross()                   | SubTotalGross                   |
+        | SubTotalNet()                     | SubTotalNet                     |
+        | SubTotalGrossWithDiscounts()      | SubTotalGrossWithDiscounts      |
+        | SubTotalNetWithDiscounts()        | SubTotalNetWithDiscounts        |
+        | SumTotalDiscountAmount()          | TotalDiscountAmount             |
+        | SumNonItemRelatedDiscountAmount() | NonItemRelatedDiscountAmount    |
+        | SumItemRelatedDiscountAmount()    | ItemRelatedDiscountAmount       |
+        | SumAppliedGiftCards()             | TotalGiftCardAmount             |
+        | SumGrandTotalWithGiftCards()      | GrandTotalWithGiftCards         |
+        | -                                 | GrandTotalNetWithGiftCards      |
+* Dispatch a `PreCartMergeEvent` before and a `PostCartMergeEvent` after merging a guest and customer cart when logging in
+
+**checkout**
+* Add possibility to have additional data in `PaymentFlowActionTriggerClientSDK`
+
+**product**
+* Introduce `Labels()` function on `Attribute` to handle translations for attributes with multiple values, will fallback to `Values()` function if not translated.
+* GraphQL:
+  * Add `unitCode` to`Commerce_Product_VariationSelection_Option` and `Commerce_Product_ActiveVariationSelection`
+  * Fix mapping of VariationSelections
+  * Introduce `Labels` for attributes here as well
+* FakeService
+  * Add configuration option `commerce.product.fakeservice.defaultProducts` which toggles the delivery of default test products. 
+  * Add category facet functionality to the fake `SearchService` with default category facet items.
+  * Add configuration option `commerce.product.fakeservice.jsonTestDataCategoryFacetItems` which can be used to provide your own category facet items. 
+
+## v3.5.0
+**general**
+* Switch to MIT License
+
 **cart**
 * Add convenience function to clone carts
 * DefaultCartBehaviour now returns real cart clones to prevent data races on cart fields 
@@ -8,13 +83,19 @@
   * Add new endpoint `DELETE /api/v1/cart/deliveries/items` to be able to remove all cart items from all deliveries but keeping delivery info and other cart data untouched
 * Add new method `SumShippingGrossWithDiscounts` to the cart domain which returns gross shipping costs for the cart 
 * When using the `ItemSplitter` to split items in items with single qty (`SplitInSingleQtyItems`) the split discounts are reversed to make splitting the row total stable.
+* **Breaking**: `SumTotalTaxAmount` now takes taxes on shipping costs into account
+* **Breaking**: Delivery discount sum calculations `SumTotalDiscountAmount`, `SumNonItemRelatedDiscountAmount`, `SumItemRelatedDiscountAmount` now take discount on shipping costs into account
+  * Old calculation is now in `SumSubTotalDiscountAmount`.
 * `CartService`
   * Add `UpdateAdditionalData` to be able to set additional data to cart
   * Add `UpdateDeliveryAdditionalData` to be able to set additional data to the delivery info
   * Introduce new [interface](cart/application/service.go) to be able to easier mock the whole `CartService`
   * Add auto generated mockery mock for the `CartService`
+  * Add new field `PriceGross` of `shippingItem` to directly get the shipping cost incl tax (must be filled by cart adapter)
 * GraphQL: 
   * Add new method `sumShippingGrossWithDiscounts` to the `Commerce_DecoratedCart` type
+  * Add new field `sumShippingGross` to the `Commerce_DecoratedCart` type
+  * Add new field `priceGross` to the `Commerce_Cart_ShippingItem` type
   * Add new mutation `Commerce_Cart_UpdateAdditionalData`
   * Add new mutation `Commerce_Cart_UpdateDeliveriesAdditionalData`
   * Add new field `customAttributes` to the `Commerce_CartAdditionalData` type
@@ -23,9 +104,13 @@
   * **Breaking**: Make naming convention consistent in graphql schema `Commerce_Cart_*`
   * **Breaking**: Remove the fields `getAdditionalData, additionalDataKeys, additionalDeliveryInfoKeys` from the `Commerce_CartDeliveryInfo` type
   * **Breaking**: `Commerce_Cart_UpdateDeliveryShippingOptions` mutation responded with slice of `Commerce_Cart_DeliveryAddressForm` which was incorrect as we don't process any form data within the mutation. It responds now rightly only with `processed` state.
+* **Breaking**: Upgrade github.com/go-playground/form to v4, all types are fully compatible, but import paths have to be changed
+
 
 **checkout**
 * Introducing Flamingo events on final states of the place order process
+* Introduce a max ttl for the checkout state machine to avoid polluting the redis with stale checkout processes, defaults to 2h
+* Checkout controller: force new order id reservation if an early place happened and there was a payment issue
 * API
   * In case of an invalid cart during place order process we now expose the cart validation result, affected endpoints:
     ```
@@ -33,6 +118,8 @@
     POST /api/v1/checkout/placeorder/refresh
     POST /api/v1/checkout/placeorder/refresh-blocking
     ```
+* Add new Flow Action `PaymentFlowActionTriggerClientSDK` to the checkout
+* **Breaking**: Upgrade github.com/go-playground/form to v4, all types are fully compatible, but import paths have to be changed
 
 **customer**
 * Add mockery mocks for both `Customer` / `CustomerIdentityService` for easier testing
@@ -40,6 +127,14 @@
 
 **price**
 * When marshalling `domain.Price` to JSON the amount is rounded.
+* Fix various rounding issues with negative prices, add all rounding modes and examples to moduel readme.
+
+**product**
+* Enhance the `PriceContext` to allow potential delivery specific pricing
+* GraphQL:
+  * **Breaking**: Change `activeBase` of `Commerce_Product_PriceInfo` from `Float` to `Commerce_Price`
+  * Add `availablePrices` to the `Commerce_Product` interface to display potential pricing options in the frontend
+  * Add `context` to the `Commerce_Product_PriceInfo` model to be able to differ between prices
 
 ## v3.4.0
 **cart**

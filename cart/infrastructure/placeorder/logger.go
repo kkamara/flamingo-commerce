@@ -4,16 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
+	"path"
+	"time"
+
 	cartDomain "flamingo.me/flamingo-commerce/v3/cart/domain/cart"
 	"flamingo.me/flamingo-commerce/v3/cart/domain/placeorder"
 	"flamingo.me/flamingo/v3/core/auth"
 	"flamingo.me/flamingo/v3/framework/flamingo"
-	"fmt"
 	"golang.org/x/mod/modfile"
-	"io/ioutil"
-	"os"
-	"path"
-	"time"
 )
 
 type (
@@ -78,16 +78,16 @@ func (e *PlaceOrderLoggerAdapter) placeCart(cart *cartDomain.Cart, payment *plac
 
 // checkPayment
 func (e *PlaceOrderLoggerAdapter) checkPayment(cart *cartDomain.Cart, payment *placeorder.Payment) error {
-	if payment == nil && cart.GrandTotal().IsPositive() {
-		return errors.New("No valid Payment given")
+	if payment == nil && cart.GrandTotal.IsPositive() {
+		return errors.New("no valid payment given")
 	}
-	if cart.GrandTotal().IsPositive() {
+	if cart.GrandTotal.IsPositive() {
 		totalPrice, err := payment.TotalValue()
 		if err != nil {
 			return err
 		}
-		if !totalPrice.Equal(cart.GrandTotal()) {
-			return errors.New("Payment Total does not match with Grandtotal")
+		if !totalPrice.Equal(cart.GrandTotal) {
+			return errors.New("payment total does not match with grandtotal")
 		}
 	}
 	return nil
@@ -102,7 +102,7 @@ func (e *PlaceOrderLoggerAdapter) logOrder(cart *cartDomain.Cart, payment *place
 		if !modfile.IsDirectoryPath(e.logDirectory) {
 			return fmt.Errorf("%v is not a valid directory path", e.logDirectory)
 		}
-		//Create folder if not exist
+		// Create folder if not exist
 		if _, err := os.Stat(e.logDirectory); os.IsNotExist(err) {
 			err = os.MkdirAll(e.logDirectory, os.ModePerm)
 			if err != nil {
@@ -123,7 +123,7 @@ func (e *PlaceOrderLoggerAdapter) logOrder(cart *cartDomain.Cart, payment *place
 			return err
 		}
 		fileName := fmt.Sprintf("order-%v-%v.json", time.Now().Format(time.RFC3339), cart.ID)
-		err = ioutil.WriteFile(path.Join(e.logDirectory, fileName), []byte(content), os.ModePerm)
+		err = os.WriteFile(path.Join(e.logDirectory, fileName), []byte(content), os.ModePerm)
 		if err != nil {
 			e.logger.WithField("placeorder", cart.ID).Error(err)
 		}

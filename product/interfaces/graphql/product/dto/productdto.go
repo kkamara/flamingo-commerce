@@ -24,6 +24,7 @@ type (
 		Identifier() string
 		Media() ProductMedia
 		Price() productDomain.PriceInfo
+		AvailablePrices() []productDomain.PriceInfo
 		Title() string
 		Categories() ProductCategories
 		Description() string
@@ -70,9 +71,10 @@ type (
 
 	// VariationSelectionOption one possible variation option
 	VariationSelectionOption struct {
-		Label   string
-		State   VariationSelectionOptionState
-		Variant VariationSelectionOptionVariant
+		Label    string
+		UnitCode string
+		State    VariationSelectionOptionState
+		Variant  VariationSelectionOptionVariant
 	}
 
 	// VariationSelectionOptionState state of the option
@@ -80,9 +82,10 @@ type (
 
 	// ActiveVariationSelection The variation for the currently active variant
 	ActiveVariationSelection struct {
-		Code  string
-		Label string
-		Value string
+		Code     string
+		Label    string
+		Value    string
+		UnitCode string
 	}
 
 	// VariationSelectionOptionVariant Information about the underlying variant

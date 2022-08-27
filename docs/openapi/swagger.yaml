@@ -5,16 +5,18 @@ definitions:
         description: Code is the internal attribute identifier
         type: string
       CodeLabel:
-        description: CodeLabel is the human readable (perhaps localized) attribute name
+        description: CodeLabel is the human-readable (perhaps localized) attribute
+          name
         type: string
       Label:
-        description: Label is the human readable (perhaps localized) attribute value
+        description: Label is the human-readable (perhaps localized) attribute value
         type: string
       RawValue:
         description: RawValue is the untouched original value of the attribute
         type: object
       UnitCode:
-        description: UnitCode is the internal code of the attribute values measuring unit
+        description: UnitCode is the internal code of the attribute values measuring
+          unit
         type: string
     type: object
   ProductAttributes:
@@ -57,7 +59,8 @@ definitions:
         description: CustomAttributes list of key values
         type: object
       ReservedOrderID:
-        description: ReservedOrderID is an ID already known by the Cart of the future order ID
+        description: ReservedOrderID is an ID already known by the Cart of the future
+          order ID
         type: string
     type: object
   cart.Address:
@@ -105,7 +108,8 @@ definitions:
     properties:
       Applied:
         $ref: '#/definitions/domain.Price'
-        description: 'how much of the discount has been subtracted from cart price, IMPORTANT: always negative'
+        description: 'how much of the discount has been subtracted from cart price,
+          IMPORTANT: always negative'
       CampaignCode:
         description: unique code of the underlying campaign or rule e.g. "summer-campaign-2018"
         type: string
@@ -119,7 +123,8 @@ definitions:
         description: readable name of discount "Super Summer Sale 2018"
         type: string
       SortOrder:
-        description: indicates in which order discount have been applied, low value has been applied before high value
+        description: indicates in which order discount have been applied, low value
+          has been applied before high value
         type: integer
       Type:
         description: to distinguish between discounts
@@ -146,7 +151,8 @@ definitions:
         $ref: '#/definitions/cart.AdditionalData'
         description: AdditionalData can be used for Custom attributes
       AppliedCouponCodes:
-        description: AppliedCouponCodes hold the coupons or discount codes that are applied to the cart
+        description: AppliedCouponCodes hold the coupons or discount codes that are
+          applied to the cart
         items:
           $ref: '#/definitions/cart.CouponCode'
         type: array
@@ -159,30 +165,95 @@ definitions:
         description: AuthenticatedUserID holds the potential customer ID
         type: string
       BelongsToAuthenticatedUser:
-        description: BelongsToAuthenticatedUser displays if the cart is guest cart (false) or from an authenticated user (true)
+        description: BelongsToAuthenticatedUser displays if the cart is guest cart
+          (false) or from an authenticated user (true)
         type: boolean
       BillingAddress:
         $ref: '#/definitions/cart.Address'
-        description: BillingAddress is the main billing address (relevant for all payments/invoices)
+        description: BillingAddress is the main billing address (relevant for all
+          payments/invoices)
       DefaultCurrency:
         type: string
       Deliveries:
-        description: Deliveries contains a list of desired Deliveries (or Shipments) involved in this cart
+        description: Deliveries contains a list of desired Deliveries (or Shipments)
+          involved in this cart
         items:
           $ref: '#/definitions/cart.Delivery'
         type: array
       EntityID:
         description: EntityID is a second identifier that may be used by some backends
         type: string
+      GrandTotal:
+        $ref: '#/definitions/domain.Price'
+        description: GrandTotal is the final amount that need to be paid by the customer
+          (gross)
+      GrandTotalNet:
+        $ref: '#/definitions/domain.Price'
+        description: GrandTotalNet is the corresponding net value to GrandTotal
+      GrandTotalNetWithGiftCards:
+        $ref: '#/definitions/domain.Price'
+        description: GrandTotalNetWithGiftCards is the corresponding net value to
+          GrandTotalWithGiftCards
+      GrandTotalWithGiftCards:
+        $ref: '#/definitions/domain.Price'
+        description: GrandTotalWithGiftCards is the final amount with the applied
+          gift cards subtracted.
       ID:
         description: ID is the main identifier of the cart
         type: string
+      ItemRelatedDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: ItemRelatedDiscountAmount is the sum of discounts that are related
+          to the item (including shipping discounts)
+      NonItemRelatedDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: NonItemRelatedDiscountAmount is the sum of discounts that are
+          not related to the item (including shipping discounts)
       PaymentSelection:
         $ref: '#/definitions/cart.PaymentSelection'
-        description: PaymentSelection is used to store information on "how" the customer wants to pay
+        description: PaymentSelection is used to store information on "how" the customer
+          wants to pay
       Purchaser:
         $ref: '#/definitions/cart.Person'
-        description: Purchaser hold additional infos for the legal contact person in this order
+        description: Purchaser hold additional infos for the legal contact person
+          in this order
+      ShippingGross:
+        $ref: '#/definitions/domain.Price'
+        description: ShippingGross is the sum of all shipping costs including tax
+      ShippingGrossWithDiscounts:
+        $ref: '#/definitions/domain.Price'
+        description: ShippingGrossWithDiscounts is the sum of all shipping costs with
+          all shipping discounts including tax
+      ShippingNet:
+        $ref: '#/definitions/domain.Price'
+        description: ShippingNet is the sum of all shipping costs
+      ShippingNetWithDiscounts:
+        $ref: '#/definitions/domain.Price'
+        description: ShippingNetWithDiscounts is the sum of all shipping costs with
+          all shipping discounts
+      SubTotalGross:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalGross is the sum of all delivery subtotals (without shipping/
+          discounts)
+      SubTotalGrossWithDiscounts:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalGrossWithDiscounts is the sum of row gross prices reduced
+          by the applied discounts
+      SubTotalNet:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalNet is the sum of all delivery net subtotals (without
+          shipping/ discounts)
+      SubTotalNetWithDiscounts:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalNetWithDiscounts is the sum of row net prices reduced
+          by the net value of the applied discounts
+      TotalDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: TotalDiscountAmount is the sum of all discounts (incl. shipping)
+      TotalGiftCardAmount:
+        $ref: '#/definitions/domain.Price'
+        description: AppliedGiftCardsAmount is the part of GrandTotal which is paid
+          by gift cards
       Totalitems:
         description: Additional non taxable totals
         items:
@@ -195,7 +266,8 @@ definitions:
         type: string
       CustomAttributes:
         additionalProperties: true
-        description: CustomAttributes can hold additional data for coupon code - keys and values are project specific
+        description: CustomAttributes can hold additional data for coupon code - keys
+          and values are project specific
         type: object
     type: object
   cart.Delivery:
@@ -207,20 +279,57 @@ definitions:
         type: array
       DeliveryInfo:
         $ref: '#/definitions/cart.DeliveryInfo'
-        description: DeliveryInfo contains details for this delivery e.g. how and where the delivery should be delivered to
+        description: DeliveryInfo contains details for this delivery e.g. how and
+          where the delivery should be delivered to
+      GrandTotal:
+        $ref: '#/definitions/domain.Price'
+        description: GrandTotal contains the final price to pay
+      ItemRelatedDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: ItemRelatedDiscountAmount contains the sum of discounts that
+          are related to the item, e.g. promo due to product attribute
+      NonItemRelatedDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: NonItemRelatedDiscountAmount contains the sum of discounts that
+          are not related to the item, e.g. a general promo
       ShippingItem:
         $ref: '#/definitions/cart.ShippingItem'
-        description: "ShippingItem\trepresent the shipping cost that may be involved in this delivery"
+        description: "ShippingItem\trepresent the shipping cost that may be involved
+          in this delivery"
+      SubTotalDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: TotalDiscountAmount contains the sum of all discounts (excl.
+          shipping)
+      SubTotalGross:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalGross contains the sum of row gross prices, without shipping/discounts
+      SubTotalGrossWithDiscounts:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalGrossWithDiscounts contains the sum of row gross prices
+          reduced by the applied discounts
+      SubTotalNet:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalNet contains the sum of row net prices, without shipping/discounts
+      SubTotalNetWithDiscounts:
+        $ref: '#/definitions/domain.Price'
+        description: SubTotalNetWithDiscounts contains the sum of row net prices reduced
+          by the net value of the applied discounts
+      TotalDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: TotalDiscountAmount contains the sum of all discounts (incl.
+          shipping)
     type: object
   cart.DeliveryInfo:
     properties:
       AdditionalData:
         additionalProperties:
           type: string
-        description: AdditionalData can be used to store project specific information on the delivery
+        description: AdditionalData can be used to store project specific information
+          on the delivery
         type: object
       Carrier:
-        description: Carrier optional name of the Carrier that should be responsible for executing the delivery
+        description: Carrier optional name of the Carrier that should be responsible
+          for executing the delivery
         type: string
       Code:
         description: |-
@@ -234,25 +343,30 @@ definitions:
         description: DesiredTime is an optional desired time for the delivery
         type: string
       Method:
-        description: Method is the shipping method something that is project specific and that can mean different delivery qualities with different delivery costs
+        description: Method is the shipping method something that is project specific
+          and that can mean different delivery qualities with different delivery costs
         type: string
       Workflow:
-        description: Workflow of the Delivery e.g. delivery or pickup, see DeliveryWorkflowPickup, DeliveryWorkflowDelivery or DeliveryWorkflowUnspecified
+        description: Workflow of the Delivery e.g. delivery or pickup, see DeliveryWorkflowPickup,
+          DeliveryWorkflowDelivery or DeliveryWorkflowUnspecified
         type: string
     type: object
   cart.DeliveryLocation:
     properties:
       Address:
         $ref: '#/definitions/cart.Address'
-        description: Address contains the address of the delivery location, maybe not relevant if the type is not address
+        description: Address contains the address of the delivery location, maybe
+          not relevant if the type is not address
       Code:
         description: Code is an optional identifier of this location/destination
         type: string
       Type:
-        description: Type is the type of the delivery - use some of the constant defined in the package like DeliverylocationTypeAddress
+        description: Type is the type of the delivery - use some of the constant defined
+          in the package like DeliverylocationTypeAddress
         type: string
       UseBillingAddress:
-        description: UseBillingAddress if the address should be taken from billing (only relevant for type address)
+        description: UseBillingAddress if the address should be taken from billing
+          (only relevant for type address)
         type: boolean
     type: object
   cart.ExistingCustomerData:
@@ -268,7 +382,10 @@ definitions:
           type: string
         type: object
       AppliedDiscounts:
-        description: AppliedDiscounts contains the details about the discounts applied to this item - they can be "itemrelated" or not
+        description: |-
+          AppliedDiscounts contains the details about the discounts applied to this item - they can be "itemrelated" or not
+          itemrelated would be e.g. special price, buy 3 pay 2
+          non-itemrelated would be e.g. 10% on everything
         items:
           $ref: '#/definitions/cart.AppliedDiscount'
         type: array
@@ -280,32 +397,64 @@ definitions:
       ID:
         description: ID of the item - needs to be unique over the whole cart
         type: string
+      ItemRelatedDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: ItemRelatedDiscountAmount is the sum of all itemrelated Discounts
       MarketplaceCode:
+        description: MarketplaceCode is the identifier for the product
         type: string
+      NonItemRelatedDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: NonItemRelatedDiscountAmount is the sum of non-itemrelated Discounts
+          where IsItemRelated = false
       ProductName:
         type: string
       Qty:
         type: integer
       RowPriceGross:
         $ref: '#/definitions/domain.Price'
-        description: RowPriceGross
+        description: RowPriceGross is the price incl. taxes for the whole Qty of products
+      RowPriceGrossWithDiscount:
+        $ref: '#/definitions/domain.Price'
+        description: |-
+          RowPriceGrossWithDiscount is the price incl. taxes with deducted discounts for the whole Qty of products
+          This is in most cases the final price for the customer to pay
+      RowPriceGrossWithItemRelatedDiscount:
+        $ref: '#/definitions/domain.Price'
+        description: RowPriceGrossWithItemRelatedDiscount is the price incl. taxes
+          with deducted item related discounts for the whole Qty of products
       RowPriceNet:
         $ref: '#/definitions/domain.Price'
-        description: RowPriceNet
+        description: RowPriceNet is the price excl. taxes for the whole Qty of products
+      RowPriceNetWithDiscount:
+        $ref: '#/definitions/domain.Price'
+        description: RowPriceNetWithDiscount is the discounted net price for the whole
+          Qty of products
+      RowPriceNetWithItemRelatedDiscount:
+        $ref: '#/definitions/domain.Price'
+        description: RowPriceNetWithItemRelatedDiscount is the price excl. taxes with
+          deducted item related discounts for the whole Qty of products
       RowTaxes:
-        description: RowPriceGross
+        description: RowTaxes is a list of all taxes applied for the given Qty of
+          products
         items:
           $ref: '#/definitions/cart.Tax'
         type: array
       SinglePriceGross:
         $ref: '#/definitions/domain.Price'
-        description: SinglePriceGross gross price (incl. taxes) for a single product
+        description: SinglePriceGross is the gross price (incl. taxes) for a single
+          product
       SinglePriceNet:
         $ref: '#/definitions/domain.Price'
-        description: SinglePriceNet net price (excl. taxes) for a single product
+        description: SinglePriceNet is the net price (excl. taxes) for a single product
       SourceID:
-        description: Source Id of where the items should be initial picked - This is set by the SourcingLogic
+        description: Source Id of where the items should be initial picked - This
+          is set by the SourcingLogic
         type: string
+      TotalDiscountAmount:
+        $ref: '#/definitions/domain.Price'
+        description: TotalDiscountAmount is the sum of all applied discounts (aka
+          the savings for the customer)
       VariantMarketPlaceCode:
         description: VariantMarketPlaceCode is used for Configurable products
         type: string
@@ -318,7 +467,8 @@ definitions:
         $ref: '#/definitions/cart.Address'
       ExistingCustomerData:
         $ref: '#/definitions/cart.ExistingCustomerData'
-        description: ExistingCustomerData if the current purchaser is an existing customer - this contains infos about existing customer
+        description: ExistingCustomerData if the current purchaser is an existing
+          customer - this contains infos about existing customer
       PersonalDetails:
         $ref: '#/definitions/cart.PersonalDetails'
     type: object
@@ -339,7 +489,13 @@ definitions:
         items:
           $ref: '#/definitions/cart.AppliedDiscount'
         type: array
+      PriceGross:
+        $ref: '#/definitions/domain.Price'
+      PriceGrossWithDiscounts:
+        $ref: '#/definitions/domain.Price'
       PriceNet:
+        $ref: '#/definitions/domain.Price'
+      PriceNetWithDiscounts:
         $ref: '#/definitions/domain.Price'
       TaxAmount:
         $ref: '#/definitions/domain.Price'
@@ -516,14 +672,16 @@ definitions:
   domain.FlowActionData:
     properties:
       DisplayData:
-        description: DisplayData holds data, normally HTML to be displayed to the user
+        description: DisplayData holds data, normally HTML to be displayed to the
+          user
         type: string
       FormParameter:
         additionalProperties:
           $ref: '#/definitions/domain.FormField'
         type: object
       URL:
-        description: URL is used to pass URL data to the user if the current state needs some
+        description: URL is used to pass URL data to the user if the current state
+          needs some
         type: string
       WalletDetails:
         $ref: '#/definitions/domain.WalletDetails'
@@ -531,18 +689,23 @@ definitions:
   domain.FlowStatus:
     properties:
       Action:
-        description: Action to perform to proceed in the payment flow. If status is "payment_waiting_for_customer" this field contains information about what to do - e.g. "redirect" or "show_iframe"
+        description: Action to perform to proceed in the payment flow. If status is
+          "payment_waiting_for_customer" this field contains information about what
+          to do - e.g. "redirect" or "show_iframe"
         type: string
       ActionData:
         $ref: '#/definitions/domain.FlowActionData'
       Data:
-        description: Data contains additional information related to the action / flow
+        description: Data contains additional information related to the action /
+          flow
         type: object
       Error:
         $ref: '#/definitions/domain.Error'
-        description: Error contains additional information in case of an error (e.g. payment failed)
+        description: Error contains additional information in case of an error (e.g.
+          payment failed)
       Status:
-        description: Status of the payment flow. E.g. "payment_completed", "payment_waiting_for_customer" or "payment_failed"
+        description: Status of the payment flow. E.g. "payment_completed", "payment_waiting_for_customer"
+          or "payment_failed"
         type: string
     type: object
   domain.FormField:
@@ -599,6 +762,8 @@ definitions:
       ChannelCode:
         type: string
       CustomerGroup:
+        type: string
+      DeliveryCode:
         type: string
       Locale:
         type: string
@@ -667,12 +832,14 @@ definitions:
           type: string
         type: array
       LoyaltyEarnings:
-        description: LoyaltyEarnings jolds optional infos about potential loyalty earnings
+        description: LoyaltyEarnings holds optional infos about potential loyalty
+          earnings
         items:
           $ref: '#/definitions/domain.LoyaltyEarningInfo'
         type: array
       LoyaltyPrices:
-        description: LoyaltyPrices holds optional infos for products that can be paid in a loyalty program
+        description: LoyaltyPrices holds optional infos for products that can be paid
+          in a loyalty program
         items:
           $ref: '#/definitions/domain.LoyaltyPriceInfo'
         type: array
@@ -725,7 +892,10 @@ definitions:
           $ref: '#/definitions/ProductMedia'
         type: array
       PreSelectedVariantSku:
-        description: PreSelectedVariantSku might be set for configurables to give a hint to link to a variant of a configurable (That might be the case if a user filters for an attribute and in the teaser the variant with that attribute is shown)
+        description: PreSelectedVariantSku might be set for configurables to give
+          a hint to link to a variant of a configurable (That might be the case if
+          a user filters for an attribute and in the teaser the variant with that
+          attribute is shown)
         type: string
       ShortDescription:
         type: string
@@ -737,15 +907,18 @@ definitions:
         type: array
       TeaserLoyaltyEarningInfo:
         $ref: '#/definitions/domain.LoyaltyEarningInfo'
-        description: TeaserLoyaltyEarning is the teaser for the loyalty earning used in grid / list view
+        description: TeaserLoyaltyEarning is the teaser for the loyalty earning used
+          in grid / list view
       TeaserLoyaltyPriceInfo:
         $ref: '#/definitions/domain.LoyaltyPriceInfo'
-        description: TeaserLoyaltyPriceInfo is the loyalty price that can be used for teaser (e.g. on listing views)
+        description: TeaserLoyaltyPriceInfo is the loyalty price that can be used
+          for teaser (e.g. on listing views)
       TeaserPrice:
         $ref: '#/definitions/domain.PriceInfo'
         description: TeaserPrice is the price that should be shown in teasers (listview)
       TeaserPriceIsFromPrice:
-        description: TeaserPriceIsFromPrice is set to true in cases where a product might have different prices (e.g. configurable)
+        description: TeaserPriceIsFromPrice is set to true in cases where a product
+          might have different prices (e.g. configurable)
         type: boolean
       URLSlug:
         type: string
@@ -833,7 +1006,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controller.CartAPIResult'
-      summary: Remove all stored cart information e.g. items, deliveries, billing address and returns the empty cart.
+      summary: Remove all stored cart information e.g. items, deliveries, billing
+        address and returns the empty cart.
       tags:
       - Cart
     get:
@@ -970,7 +1144,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controller.CartAPIResult'
-      summary: Remove all cart items from all deliveries and return the cart, keeps the delivery info untouched.
+      summary: Remove all cart items from all deliveries and return the cart, keeps
+        the delivery info untouched.
       tags:
       - Cart
   /api/v1/cart/delivery/{deliveryCode}:
@@ -1123,7 +1298,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controller.CartAPIResult'
-      summary: Adds delivery infos, such as shipping address to the delivery for the cart
+      summary: Adds delivery infos, such as shipping address to the delivery for the
+        cart
       tags:
       - Cart
   /api/v1/cart/delivery/{deliveryCode}/item:
@@ -1165,7 +1341,8 @@ paths:
         name: marketplaceCode
         required: true
         type: string
-      - description: optional the product identifier of the variant (for configurable products) that should be added
+      - description: optional the product identifier of the variant (for configurable
+          products) that should be added
         in: query
         name: variantMarketplaceCode
         type: string
@@ -1333,7 +1510,8 @@ paths:
       - Cart
   /api/v1/cart/voucher-gift-card:
     post:
-      description: Use this if you have one user input and that input can be used to either enter a voucher or a gift card
+      description: Use this if you have one user input and that input can be used
+        to either enter a voucher or a gift card
       parameters:
       - description: the couponCode that should be applied as gift card or voucher
         in: query
@@ -1407,7 +1585,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/checkoutError'
-      summary: Starts the place order process, which is a background process handling payment and rollbacks if required.
+      summary: Starts the place order process, which is a background process handling
+        payment and rollbacks if required.
       tags:
       - Checkout
   /api/v1/checkout/placeorder/cancel:
@@ -1439,12 +1618,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/checkoutError'
-      summary: Returns the current place order context and proceeds the process in a non blocking way
+      summary: Returns the current place order context and proceeds the process in
+        a non blocking way
       tags:
       - Checkout
   /api/v1/checkout/placeorder/refresh-blocking:
     post:
-      description: This is useful to get the most recent place order context, for example after returning from an external payment provider
+      description: This is useful to get the most recent place order context, for
+        example after returning from an external payment provider
       produces:
       - application/json
       responses:
@@ -1456,7 +1637,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/checkoutError'
-      summary: Proceeds the process and returns the place order context afterwards (blocking)
+      summary: Proceeds the process and returns the place order context afterwards
+        (blocking)
       tags:
       - Checkout
   /api/v1/payment/status:
@@ -1513,11 +1695,14 @@ paths:
       - Product
 swagger: "2.0"
 tags:
-- description: All Cart related APIs endpoints, most suitable to be called from a browser, because they rely on the session and cookie headers.
+- description: All Cart related APIs endpoints, most suitable to be called from a
+    browser, because they rely on the session and cookie headers.
   name: Cart
-- description: All Payment related APIs endpoints, most suitable to be called from a browser, because they rely on the session and cookie headers.
+- description: All Payment related APIs endpoints, most suitable to be called from
+    a browser, because they rely on the session and cookie headers.
   name: Payment
 - description: All Product related APIs endpoints.
   name: Product
-- description: All Checkout related APIs endpoints, most suitable to be called from a browser, because they rely on the session and cookie headers.
+- description: All Checkout related APIs endpoints, most suitable to be called from
+    a browser, because they rely on the session and cookie headers.
   name: Checkout

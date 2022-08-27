@@ -4,6 +4,7 @@ interface Commerce_Product {
     identifier: String!
     media: Commerce_Product_Media!,
     price: Commerce_Product_PriceInfo!,
+    availablePrices: [Commerce_Product_PriceInfo!],
     title: String!
     categories: Commerce_Product_Categories!
     description: String!
@@ -23,6 +24,7 @@ type Commerce_Product_SimpleProduct implements Commerce_Product {
     identifier: String!
     media: Commerce_Product_Media!,
     price: Commerce_Product_PriceInfo!,
+    availablePrices: [Commerce_Product_PriceInfo!],
     title: String!
     categories: Commerce_Product_Categories!
     description: String!
@@ -43,6 +45,7 @@ type Commerce_Product_ConfigurableProduct implements Commerce_Product {
     identifier: String!
     media: Commerce_Product_Media!,
     price: Commerce_Product_PriceInfo!,
+    availablePrices: [Commerce_Product_PriceInfo!],
     title: String!
     categories: Commerce_Product_Categories!
     description: String!
@@ -65,6 +68,7 @@ type Commerce_Product_ActiveVariantProduct implements Commerce_Product {
     identifier: String!
     media: Commerce_Product_Media!,
     price: Commerce_Product_PriceInfo!,
+    availablePrices: [Commerce_Product_PriceInfo!],
     title: String!
     categories: Commerce_Product_Categories!
     description: String!
@@ -85,7 +89,7 @@ type Commerce_Product_ActiveVariantProduct implements Commerce_Product {
 type Commerce_Product_VariationSelection {
     code: String!
     label: String!
-    "All possiblie variations for that attribute. E.g. 'M', 'L', 'XL'"
+    "All possible variations for that attribute. E.g. 'M', 'L', 'XL'"
     options: [Commerce_Product_VariationSelection_Option]
 }
 
@@ -94,11 +98,13 @@ type Commerce_Product_ActiveVariationSelection {
     code: String!
     label: String!
     value: String!
+    unitCode: String!
 }
 
 "An option for a group of attributes"
 type Commerce_Product_VariationSelection_Option {
     label: String!
+    unitCode: String!
     state: Commerce_Product_VariationSelection_OptionState!
     """
     Contains information about a product that matches this option.
@@ -161,6 +167,7 @@ type Commerce_Product_Loyalty_EarningInfo {
 
 type Commerce_Product_PriceContext {
     customerGroup: String!
+    deliveryCode: String!
     channelCode: String!
     locale: String!
 }
@@ -187,11 +194,20 @@ type Commerce_Product_Attributes {
 }
 
 type Commerce_Product_Attribute {
+    "Code of the attribute e.g. `productWeight`"
     code: String!
+    "Human-readable code e.g. `The Product Weight`"
     codeLabel: String!
+    "Human-readable label of a single value"
     label: String!
+    "Value of the selected attribute"
+    value: String!
+    "Unit of the attribute e.g. `kg`"
     unitCode: String!
+    "Values of a multi value attribute"
     values: [String!]
+    "Human-readable labels of a multi value attribute"
+    labels: [String!]
 }
 
 type Commerce_Product_CategoryTeaser {
@@ -202,16 +218,16 @@ type Commerce_Product_CategoryTeaser {
 }
 
 type Commerce_Product_PriceInfo {
-    default: Commerce_Price
-    discounted: Commerce_Price
+    default: Commerce_Price!
+    discounted: Commerce_Price!
     discountText: String!
-    activeBase: Float!
+    activeBase: Commerce_Price!
     activeBaseAmount: Float!
-    activeBaseUnit: String
-    isDiscounted: Boolean
+    activeBaseUnit: String!
+    isDiscounted: Boolean!
     campaignRules: [String!]
-    denyMoreDiscounts: Boolean
-    #    context: Commerce_Product_PriceContext
+    denyMoreDiscounts: Boolean!
+    context: Commerce_Product_PriceContext!
     taxClass: String!
 }
 

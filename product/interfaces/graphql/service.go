@@ -1,21 +1,25 @@
 package graphql
 
 import (
+	// embed schema.graphql
+	_ "embed"
+
 	"flamingo.me/flamingo-commerce/v3/product/domain"
 	graphqlProductDto "flamingo.me/flamingo-commerce/v3/product/interfaces/graphql/product/dto"
 	"flamingo.me/graphql"
 )
-
-//go:generate go run github.com/go-bindata/go-bindata/v3/go-bindata -nometadata -o fs.go -pkg graphql schema.graphql
 
 // Service is the Graphql-Service of this module
 type Service struct{}
 
 var _ graphql.Service = new(Service)
 
+//go:embed schema.graphql
+var schema []byte
+
 // Schema returns graphql schema of this module
 func (*Service) Schema() []byte {
-	return MustAsset("schema.graphql")
+	return schema
 }
 
 // Types configures the GraphQL to Go resolvers
@@ -45,6 +49,7 @@ func (*Service) Types(types *graphql.Types) {
 	types.Map("Commerce_Product_Attribute", domain.Attribute{})
 	types.Map("Commerce_Product_CategoryTeaser", domain.CategoryTeaser{})
 	types.Map("Commerce_Product_PriceInfo", domain.PriceInfo{})
+	types.Resolve("Commerce_Product_PriceInfo", "activeBase", CommerceProductQueryResolver{}, "ActiveBase")
 	types.Map("Commerce_Product_SearchResult", SearchResultDTO{})
 	types.Map("Commerce_Product_Badges", graphqlProductDto.ProductBadges{})
 	types.Map("Commerce_Product_Badge", domain.Badge{})

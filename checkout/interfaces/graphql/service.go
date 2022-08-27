@@ -1,22 +1,26 @@
 package graphql
 
 import (
+	// embed schema.graphql
+	_ "embed"
+
 	"flamingo.me/flamingo-commerce/v3/checkout/application"
 	"flamingo.me/flamingo-commerce/v3/checkout/domain/placeorder/process"
 	"flamingo.me/flamingo-commerce/v3/checkout/interfaces/graphql/dto"
 	"flamingo.me/graphql"
 )
 
-//go:generate go run github.com/go-bindata/go-bindata/v3/go-bindata -nometadata -o fs.go -pkg graphql schema.graphql
-
 // Service is the Graphql-Service of this module
 type Service struct{}
 
 var _ graphql.Service = new(Service)
 
+//go:embed schema.graphql
+var schema []byte
+
 // Schema returns graphql schema of this module
 func (*Service) Schema() []byte {
-	return MustAsset("schema.graphql")
+	return schema
 }
 
 // Types configures the GraphQL to Go resolvers
@@ -33,6 +37,7 @@ func (*Service) Types(types *graphql.Types) {
 	types.Map("Commerce_Checkout_PlaceOrderState_State_ShowIframe", dto.ShowIframe{})
 	types.Map("Commerce_Checkout_PlaceOrderState_State_ShowHTML", dto.ShowHTML{})
 	types.Map("Commerce_Checkout_PlaceOrderState_State_ShowWalletPayment", dto.ShowWalletPayment{})
+	types.Map("Commerce_Checkout_PlaceOrderState_State_TriggerClientSDK", dto.TriggerClientSDK{})
 	types.Map("Commerce_Checkout_PlaceOrderState_PaymentRequestAPI", dto.PaymentRequestAPI{})
 	types.Map("Commerce_Checkout_PlaceOrderState_State_Redirect", dto.Redirect{})
 	types.Map("Commerce_Checkout_PlaceOrderState_State_PostRedirect", dto.PostRedirect{})

@@ -1,8 +1,9 @@
 package fake
 
 import (
+	"embed"
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -11,11 +12,14 @@ import (
 	"flamingo.me/flamingo-commerce/v3/category/domain"
 )
 
+//go:embed mock
+var mock embed.FS
+
 // LoadCategoryTree returns tree data from file
 func LoadCategoryTree(testDataFiles map[string]string, logger flamingo.Logger) []*domain.TreeData {
 	var tree []*domain.TreeData
 	if categoryTreeFile, ok := testDataFiles["categoryTree"]; ok {
-		data, err := ioutil.ReadFile(categoryTreeFile)
+		data, err := os.ReadFile(categoryTreeFile)
 		if err != nil {
 			logger.Warn(err)
 			return tree
@@ -25,7 +29,7 @@ func LoadCategoryTree(testDataFiles map[string]string, logger flamingo.Logger) [
 			logger.Warn(err)
 		}
 	} else {
-		jsonFile, err := Asset("categoryTree.json")
+		jsonFile, err := mock.ReadFile("mock/categoryTree.json")
 		if err != nil {
 			logger.Warn(err)
 			return tree
@@ -42,7 +46,7 @@ func LoadCategoryTree(testDataFiles map[string]string, logger flamingo.Logger) [
 func LoadCategory(categoryCode string, testDataFiles map[string]string, logger flamingo.Logger) domain.Category {
 	var categoryData *domain.CategoryData
 	if categoryTreeFile, ok := testDataFiles[categoryCode]; ok {
-		data, err := ioutil.ReadFile(categoryTreeFile)
+		data, err := os.ReadFile(categoryTreeFile)
 		if err != nil {
 			logger.Warn(err)
 			return nil
@@ -53,7 +57,7 @@ func LoadCategory(categoryCode string, testDataFiles map[string]string, logger f
 			return nil
 		}
 	} else {
-		jsonFile, err := Asset(categoryCode + ".json")
+		jsonFile, err := mock.ReadFile("mock/" + categoryCode + ".json")
 		if err != nil {
 			logger.Warn(err)
 			return nil
@@ -121,7 +125,7 @@ func unmarshalCategoryData(jsonData []byte) (*domain.CategoryData, error) {
 // RegisterTestData returns files of given folder
 func RegisterTestData(folder string, logger flamingo.Logger) map[string]string {
 	testDataFiles := make(map[string]string)
-	files, err := ioutil.ReadDir(folder)
+	files, err := os.ReadDir(folder)
 	if err != nil {
 		logger.Warn(err)
 		return testDataFiles

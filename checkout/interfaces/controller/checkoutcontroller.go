@@ -48,6 +48,8 @@ type (
 		ErrorMessage string
 		// if the Error happens during processing payment (can be used in template to behave special in case of payment errors)
 		HasPaymentError bool
+		// if payment error occurred holds additional infos
+		PaymentErrorCode string
 	}
 
 	// SuccessViewData represents the success view data
@@ -269,7 +271,7 @@ func (cc *CheckoutController) placeOrderAction(ctx context.Context, r *web.Reque
 		placedOrderInfo, _ = cc.orderService.LastPlacedOrder(ctx)
 		cc.orderService.ClearLastPlacedOrder(ctx)
 	} else {
-		if decoratedCart.Cart.GrandTotal().IsZero() {
+		if decoratedCart.Cart.GrandTotal.IsZero() {
 			// Nothing to pay, so cart can be placed without payment processing.
 			placedOrderInfo, err = cc.orderService.CurrentCartPlaceOrder(ctx, session, placeorder.Payment{})
 		} else {
@@ -443,6 +445,7 @@ func getViewErrorInfo(err error) ViewErrorInfos {
 	}
 
 	hasPaymentError := false
+	paymentErrorCode := ""
 
 	if paymentErr, ok := err.(*paymentDomain.Error); ok {
 		hasPaymentError = true
@@ -454,12 +457,15 @@ func getViewErrorInfo(err error) ViewErrorInfos {
 				HasPaymentError: false,
 			}
 		}
+
+		paymentErrorCode = paymentErr.ErrorCode
 	}
 
 	return ViewErrorInfos{
-		HasError:        true,
-		ErrorMessage:    err.Error(),
-		HasPaymentError: hasPaymentError,
+		HasError:         true,
+		ErrorMessage:     err.Error(),
+		HasPaymentError:  hasPaymentError,
+		PaymentErrorCode: paymentErrorCode,
 	}
 }
 
@@ -474,7 +480,7 @@ func (cc *CheckoutController) processPayment(ctx context.Context, r *web.Request
 	}
 
 	// Cart grand total is zero, so no payment needed.
-	if decoratedCart.Cart.GrandTotal().IsZero() {
+	if decoratedCart.Cart.GrandTotal.IsZero() {
 		return cc.responder.RouteRedirect("checkout.placeorder", nil)
 	}
 
@@ -561,7 +567,7 @@ func (cc *CheckoutController) ReviewAction(ctx context.Context, r *web.Request) 
 			return cc.processPayment(ctx, r)
 		}
 
-		if decoratedCart.Cart.GrandTotal().IsZero() {
+		if decoratedCart.Cart.GrandTotal.IsZero() {
 			return cc.responder.RouteRedirect("checkout.placeorder", nil)
 		}
 	}
@@ -602,14 +608,15 @@ func (cc *CheckoutController) PaymentAction(ctx context.Context, r *web.Request)
 				return cc.responder.RouteRedirect("checkout", nil)
 			}
 
-			restoredCart, err := cc.orderService.CancelOrder(ctx, session, infos)
+			_, err = cc.orderService.CancelOrder(ctx, session, infos)
 			if err != nil {
 				cc.logger.WithContext(ctx).Error(err)
 				return cc.responder.RouteRedirect("checkout", nil)
 			}
 
-			decoratedCart = cc.decoratedCartFactory.Create(ctx, *restoredCart)
 			cc.orderService.ClearLastPlacedOrder(ctx)
+
+			_, _ = cc.applicationCartService.ForceReserveOrderIDAndSave(ctx, r.Session())
 		}
 
 		return cc.redirectToCheckoutFormWithErrors(ctx, r, err)
@@ -663,6 +670,7 @@ func (cc *CheckoutController) PaymentAction(ctx context.Context, r *web.Request)
 			}
 
 			cc.orderService.ClearLastPlacedOrder(ctx)
+			_, _ = cc.applicationCartService.ForceReserveOrderIDAndSave(ctx, r.Session())
 		}
 
 		// mark payment selection as new payment to allow the user to retry
@@ -700,6 +708,7 @@ func (cc *CheckoutController) PaymentAction(ctx context.Context, r *web.Request)
 			}
 
 			cc.orderService.ClearLastPlacedOrder(ctx)
+			_, _ = cc.applicationCartService.ForceReserveOrderIDAndSave(ctx, r.Session())
 		}
 
 		// mark payment selection as new payment to allow the user to retry
@@ -780,7 +789,7 @@ func (cc *CheckoutController) checkTermsAndPrivacyPolicy(r *web.Request) (bool, 
 
 	canProceed := proceed == "1" && (!cc.privacyPolicyRequired || privacyPolicy == "1") && termsAndConditions == "1"
 
-	if 0 == len(errorMessages) {
+	if len(errorMessages) == 0 {
 		return canProceed, nil
 	}
 

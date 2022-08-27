@@ -73,6 +73,13 @@ type (
 		PaymentRequestAPI PaymentRequestAPI
 	}
 
+	// TriggerClientSDK state
+	TriggerClientSDK struct {
+		Name string
+		URL  string
+		Data string
+	}
+
 	// PaymentRequestAPI holds all data needed to create a PaymentRequest
 	PaymentRequestAPI struct {
 		MethodData            string
@@ -93,6 +100,7 @@ var (
 	_ State = new(Redirect)
 	_ State = new(PostRedirect)
 	_ State = new(ShowWalletPayment)
+	_ State = new(TriggerClientSDK)
 )
 
 // MapFrom the internal process state to the graphQL state fields
@@ -179,6 +187,15 @@ func (s *PostRedirect) MapFrom(pctx process.Context) {
 			})
 		}
 		s.Parameters = parameters
+	}
+}
+
+// MapFrom the internal process state to the graphQL state fields
+func (t *TriggerClientSDK) MapFrom(pctx process.Context) {
+	t.Name = pctx.CurrentStateName
+	if stateData, ok := pctx.CurrentStateData.(states.TriggerClientSDKData); ok {
+		t.URL = stateData.URL.String()
+		t.Data = stateData.Data
 	}
 }
 

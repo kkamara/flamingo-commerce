@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package graphql_test
@@ -20,6 +21,7 @@ func Test_CommerceProductGet(t *testing.T) {
 			"title":           "TypeSimple product",
 			"marketPlaceCode": "fake_simple",
 			"meta":            map[string]interface{}{"keywords": []interface{}{string("keywords")}},
+			"price":           map[string]interface{}{"activeBase": map[string]interface{}{"amount": 1.0, "currency": "€"}},
 		},
 		"configurable": map[string]interface{}{
 			"title":           "TypeConfigurable product",

@@ -759,15 +759,6 @@ func (m *MockGuestCartServiceWithModifyBehaviour) GetModifyBehaviour(context.Con
 		storage,
 		&MockProductService{},
 		flamingo.NullLogger{},
-		func() *cartDomain.ItemBuilder {
-			return &cartDomain.ItemBuilder{}
-		},
-		func() *cartDomain.DeliveryBuilder {
-			return &cartDomain.DeliveryBuilder{}
-		},
-		func() *cartDomain.Builder {
-			return &cartDomain.Builder{}
-		},
 		nil,
 		nil,
 		nil,
@@ -883,7 +874,7 @@ type MockRestrictor struct {
 }
 
 func (r *MockRestrictor) Name() string {
-	return fmt.Sprintf("MockRestrictor")
+	return "MockRestrictor"
 }
 
 func (r *MockRestrictor) Restrict(ctx context.Context, session *web.Session, product productDomain.BasicProduct, currentCart *cartDomain.Cart, deliveryCode string) *validation.RestrictionResult {

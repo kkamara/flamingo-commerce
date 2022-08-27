@@ -6,7 +6,7 @@ import (
 	"flamingo.me/flamingo/v3/framework/flamingo"
 	"flamingo.me/flamingo/v3/framework/web"
 	flamingographql "flamingo.me/graphql"
-	"github.com/go-playground/form"
+	"github.com/go-playground/form/v4"
 
 	"flamingo.me/flamingo-commerce/v3/checkout/infrastructure/contextstore"
 	"flamingo.me/flamingo-commerce/v3/checkout/interfaces/graphql/dto"
@@ -76,6 +76,7 @@ func (m *Module) Configure(injector *dingo.Injector) {
 	injector.BindMap(new(process.State), new(states.ShowWalletPayment).Name()).To(states.ShowWalletPayment{})
 	injector.BindMap(new(process.State), new(states.Redirect).Name()).To(states.Redirect{})
 	injector.BindMap(new(process.State), new(states.PostRedirect).Name()).To(states.PostRedirect{})
+	injector.BindMap(new(process.State), new(states.TriggerClientSDK).Name()).To(states.TriggerClientSDK{})
 
 	// bind internal states to graphQL states
 	injector.BindMap(new(dto.State), new(states.New).Name()).To(dto.Wait{})
@@ -95,6 +96,7 @@ func (m *Module) Configure(injector *dingo.Injector) {
 	injector.BindMap(new(dto.State), new(states.ShowIframe).Name()).To(dto.ShowIframe{})
 	injector.BindMap(new(dto.State), new(states.Redirect).Name()).To(dto.Redirect{})
 	injector.BindMap(new(dto.State), new(states.PostRedirect).Name()).To(dto.PostRedirect{})
+	injector.BindMap(new(dto.State), new(states.TriggerClientSDK).Name()).To(dto.TriggerClientSDK{})
 
 	web.BindRoutes(injector, new(routes))
 	web.BindRoutes(injector, new(apiRoutes))
@@ -112,6 +114,7 @@ commerce: checkout: {
 		network:                 string | *"tcp"
 		address:                 string | *"localhost:6379"
 		database:                number | *0
+		ttl:                     string | *"2h"
 	}
 	activateDeprecatedSourcing:		    bool | *false
 	useDeliveryForms:                 bool | *true

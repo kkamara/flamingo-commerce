@@ -46,6 +46,11 @@ func (avp ActiveVariantProduct) Price() productDomain.PriceInfo {
 	return avp.product.ActiveVariant.ActivePrice
 }
 
+// AvailablePrices of the active variant
+func (avp ActiveVariantProduct) AvailablePrices() []productDomain.PriceInfo {
+	return avp.product.ActiveVariant.AvailablePrices
+}
+
 // Title of the active variant
 func (avp ActiveVariantProduct) Title() string {
 	return avp.getActiveVariant().BaseData().Title
@@ -107,9 +112,10 @@ func (avp ActiveVariantProduct) ActiveVariationSelections() []ActiveVariationSel
 		for _, option := range variationSelection.Options {
 			if option.State == VariationSelectionOptionStateActive {
 				activeVariationSelections = append(activeVariationSelections, ActiveVariationSelection{
-					Code:  variationSelection.Code,
-					Label: variationSelection.Label,
-					Value: option.Label,
+					Code:     variationSelection.Code,
+					Label:    variationSelection.Label,
+					Value:    option.Label,
+					UnitCode: option.Variant.BaseData().Attribute(variationSelection.Code).UnitCode,
 				})
 			}
 		}
